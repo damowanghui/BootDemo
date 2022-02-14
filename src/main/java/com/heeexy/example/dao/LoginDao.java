@@ -3,6 +3,7 @@ package com.heeexy.example.dao;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.heeexy.example.dto.session.SessionUserInfo;
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.Set;
@@ -12,6 +13,7 @@ import java.util.Set;
  * @description: 登录相关dao
  * @date: 2017/10/24 11:02
  */
+@Mapper
 public interface LoginDao {
     /**
      * 根据用户名和密码查询对应的用户
