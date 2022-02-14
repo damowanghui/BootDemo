@@ -1,5 +1,6 @@
 package com.heeexy.example;
 
+import lombok.extern.slf4j.Slf4j;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.Banner;
 import org.springframework.boot.SpringApplication;
@@ -14,12 +15,22 @@ import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
  */
 @SpringBootApplication
 @MapperScan("com.heeexy.example.dao")
+@Slf4j
 public class MyApplication extends SpringBootServletInitializer {
 
     public static void main(String[] args) {
         SpringApplication application = new SpringApplication(MyApplication.class);
         application.setBannerMode(Banner.Mode.OFF);
         application.run(args);
+        log.info(" _______           _______  _______  _______  _______  _______ \n" +
+                "(  ____ \\|\\     /|(  ____ \\(  ____ \\(  ____ \\(  ____ \\(  ____ \\\n" +
+                "| (    \\/| )   ( || (    \\/| (    \\/| (    \\/| (    \\/| (    \\/\n" +
+                "| (_____ | |   | || |      | |      | (__    | (_____ | (_____ \n" +
+                "(_____  )| |   | || |      | |      |  __)   (_____  )(_____  )\n" +
+                "      ) || |   | || |      | |      | (            ) |      ) |\n" +
+                "/\\____) || (___) || (____/\\| (____/\\| (____/\\/\\____) |/\\____) |\n" +
+                "\\_______)(_______)(_______/(_______/(_______/\\_______)\\_______)\n" +
+                "                             ");
     }
 
     @Override

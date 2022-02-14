@@ -5,6 +5,7 @@ import com.heeexy.example.config.exception.CommonJsonException;
 import com.heeexy.example.dao.LoginDao;
 import com.heeexy.example.dto.session.SessionUserInfo;
 import com.heeexy.example.service.TokenService;
+import com.heeexy.example.util.RedisUtil;
 import com.heeexy.example.util.StringTools;
 import com.heeexy.example.util.constants.ErrorEnum;
 import lombok.extern.slf4j.Slf4j;
@@ -23,12 +24,16 @@ import java.util.UUID;
 @Slf4j
 public class TokenServiceImpl implements TokenService {
 
-    @Autowired
-    Cache<String, SessionUserInfo> cacheMap;
+//    @Autowired
+//    Cache<String, SessionUserInfo> cacheMap;
 
     @SuppressWarnings("all")
     @Autowired
     LoginDao loginDao;
+    @Autowired
+    RedisUtil redisUtil;
+
+    private final String USER_TOKEN = "user-token:";
 
     /**
      * 用户登录验证通过后(sso/帐密),生成token,记录用户已登录的状态
@@ -58,11 +63,13 @@ public class TokenServiceImpl implements TokenService {
             throw new CommonJsonException(ErrorEnum.E_20011);
         }
         log.debug("根据token从缓存中查询用户信息,{}", token);
-        SessionUserInfo info = cacheMap.getIfPresent(token);
+//        SessionUserInfo info = cacheMap.getIfPresent(token);
+        SessionUserInfo info = (SessionUserInfo) redisUtil.get(USER_TOKEN + token);
         if (info == null) {
             log.info("没拿到缓存 token={}", token);
             throw new CommonJsonException(ErrorEnum.E_20011);
         }
+        redisUtil.expire(USER_TOKEN + token, 600);
         return info;
     }
 
@@ -70,7 +77,8 @@ public class TokenServiceImpl implements TokenService {
     public void setCache(String token, String username) {
         SessionUserInfo info = getUserInfoByUsername(username);
         log.info("设置用户信息缓存:token={} , username={}, info={}", token, username, info);
-        cacheMap.put(token, info);
+        redisUtil.set(USER_TOKEN + token, info, 600);
+//        cacheMap.put(token, info);
     }
 
     /**
@@ -80,7 +88,8 @@ public class TokenServiceImpl implements TokenService {
     public void invalidateToken() {
         String token = MDC.get("token");
         if (!StringTools.isNullOrEmpty(token)) {
-            cacheMap.invalidate(token);
+            redisUtil.del(USER_TOKEN + token);
+//            cacheMap.invalidate(token);
         }
         log.debug("退出登录,清除缓存:token={}", token);
     }

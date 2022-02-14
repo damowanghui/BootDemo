@@ -12,6 +12,9 @@ import org.springframework.context.annotation.Primary;
 
 import java.util.concurrent.TimeUnit;
 
+/**
+ * caffeine本地缓存配置
+ */
 @Configuration
 @EnableCaching
 public class CacheConfig {

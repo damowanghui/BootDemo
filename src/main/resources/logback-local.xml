@@ -4,7 +4,7 @@
     <contextName>heeexy</contextName>
 
     <!--定义日志文件的存储地址 -->
-    <property name="LOG_HOME" value="logs"/>
+    <property name="LOG_HOME" value="/Users/wangdada/tools/logs"/>
 
     <!--定义日志的输出格式 -->
     <property name="PATTERN"
