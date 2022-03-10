@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.heeexy.example.dao.FileDao">
+    <select id="listFile" resultType="com.alibaba.fastjson.JSONObject">
+        SELECT
+            w.id                                      id,
+            w.file_name                               fileName,
+            date_format(w.create_time, '%Y.%m.%d %T') createTime,
+            w.create_user                             createUser
+        FROM sys_file w
+        ORDER BY w.create_time DESC
+        LIMIT #{offSet}, #{pageRow}
+    </select>
+
+</mapper>
