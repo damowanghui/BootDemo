@@ -4,15 +4,13 @@ import com.alibaba.fastjson.JSONObject;
 import com.heeexy.example.config.annotation.RequiresPermissions;
 import com.heeexy.example.service.FileService;
 import com.heeexy.example.util.CommonUtil;
-import com.heeexy.example.util.constants.ErrorEnum;
-import com.sun.deploy.net.HttpResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * @author wph
@@ -40,9 +38,8 @@ public class FileController {
 
     @RequiresPermissions("file:download")
     @GetMapping("/downloadFile/{fileId}")
-    public JSONObject downloadFile(@PathVariable("fileId") String fileId, HttpResponse response){
-
-        return CommonUtil.successJson();
+    public ResponseEntity downloadFile(@PathVariable("fileId") String fileId, HttpServletRequest request, HttpServletResponse response){
+        return fileService.fileDownload(fileId, request, response);
     }
 
     @RequiresPermissions("file:delete")

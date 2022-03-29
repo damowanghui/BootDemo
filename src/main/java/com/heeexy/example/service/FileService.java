@@ -1,8 +1,11 @@
 package com.heeexy.example.service;
 
 import com.alibaba.fastjson.JSONObject;
-import org.springframework.http.HttpRequest;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * @author wph
@@ -26,7 +29,7 @@ public interface FileService {
      * 文件下载
      * @return 文件下载
      */
-    JSONObject fileDownload(String fileId, HttpRequest request);
+    ResponseEntity fileDownload(String fileId, HttpServletRequest request, HttpServletResponse response);
 
     /**
      * 文件删除

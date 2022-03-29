@@ -29,7 +29,17 @@ import java.util.Map;
 @Slf4j
 @Order(1)
 public class WebLogAspect {
+
     @Pointcut("execution(public * com.heeexy.example.controller..*.*(..))")
+    public void webLog1(){
+
+    }
+    @Pointcut("execution(public * com.heeexy.example.controller.FileController.*(..))")
+    public void webLog2(){
+
+    }
+
+    @Pointcut("!webLog2() && webLog1()")
     public void webLog() {
     }
 

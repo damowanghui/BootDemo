@@ -7,20 +7,25 @@ import com.heeexy.example.data.entity.SysFileEntity;
 import com.heeexy.example.service.FileService;
 import com.heeexy.example.util.CommonUtil;
 import com.heeexy.example.util.constants.ErrorEnum;
+import com.mongodb.client.gridfs.GridFSBucket;
+import com.mongodb.client.gridfs.GridFSDownloadStream;
 import com.mongodb.client.gridfs.model.GridFSFile;
-import com.sun.deploy.net.HttpResponse;
-import io.netty.util.internal.ObjectUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.gridfs.GridFsResource;
 import org.springframework.data.mongodb.gridfs.GridFsTemplate;
-import org.springframework.http.HttpRequest;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -42,7 +47,8 @@ public class FileServiceImpl implements FileService {
     @Autowired
     GridFsTemplate gridFsTemplate;
 
-
+    @Autowired
+    private GridFSBucket gridFSBucket;
 
     @Override
     public JSONObject fileList(JSONObject jsonObject) {
@@ -86,16 +92,49 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public JSONObject fileDownload(String fileId, HttpRequest request) {
+    public ResponseEntity fileDownload(String fileId, HttpServletRequest request, HttpServletResponse response) {
         //根据id查询文件
         Query query = Query.query(Criteria.where("_id").is(fileId));
         GridFSFile gridFSFile = gridFsTemplate.findOne(query);
         if (ObjectUtils.isEmpty(gridFSFile)) {
-            return CommonUtil.errorJson(ErrorEnum.E_40003);
+            throw new CommonJsonException(ErrorEnum.E_40003);
         }
+        //打开下载流对象
+        GridFSDownloadStream gridFSDownloadStream =
+                gridFSBucket.openDownloadStream(gridFSFile.getObjectId());
+        //创建gridFsResource，用于获取流对象
+        GridFsResource gridFsResource = new GridFsResource(gridFSFile, gridFSDownloadStream);
+        //获取流数据
+        InputStream inputStream = null;
+        ByteArrayOutputStream out = null;
+        byte[] outbyte = null;
+        try {
+            inputStream = gridFsResource.getInputStream();
 
-
-        return null;
+            byte[] bytes = new byte[1024];
+            out = new ByteArrayOutputStream();
+            int len = 0;
+            while ((len = inputStream.read(bytes)) != -1) {
+                out.write(bytes, 0, len);
+            }
+            outbyte = out.toByteArray();
+            // 设置一个head
+            HttpHeaders headers = new HttpHeaders();
+            //设置ContentType的值
+            headers.setContentType(MediaType.IMAGE_JPEG);
+            ResponseEntity responseEntity = new ResponseEntity(outbyte,headers,HttpStatus.OK);
+            return responseEntity;
+        } catch (Exception exception) {
+            log.error(exception.getMessage() + exception.getLocalizedMessage());
+            throw new CommonJsonException(ErrorEnum.E_40004);
+        } finally {
+            try {
+                out.close();
+                inputStream.close();
+            } catch (IOException e) {
+                log.error(e.getMessage() + e.getLocalizedMessage());
+            }
+        }
     }
 
     @Override

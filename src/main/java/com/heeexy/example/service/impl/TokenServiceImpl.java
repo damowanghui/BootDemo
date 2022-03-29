@@ -26,6 +26,7 @@ public class TokenServiceImpl implements TokenService {
 
 //    @Autowired
 //    Cache<String, SessionUserInfo> cacheMap;
+    private Long ExpiredTime = 3600L;
 
     @SuppressWarnings("all")
     @Autowired
@@ -69,7 +70,7 @@ public class TokenServiceImpl implements TokenService {
             log.info("没拿到缓存 token={}", token);
             throw new CommonJsonException(ErrorEnum.E_20011);
         }
-        redisUtil.expire(USER_TOKEN + token, 600);
+        redisUtil.expire(USER_TOKEN + token, ExpiredTime);
         return info;
     }
 
@@ -77,7 +78,7 @@ public class TokenServiceImpl implements TokenService {
     public void setCache(String token, String username) {
         SessionUserInfo info = getUserInfoByUsername(username);
         log.info("设置用户信息缓存:token={} , username={}, info={}", token, username, info);
-        redisUtil.set(USER_TOKEN + token, info, 600);
+        redisUtil.set(USER_TOKEN + token, info, ExpiredTime);
 //        cacheMap.put(token, info);
     }
 
